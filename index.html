@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibhu & Meetu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark: #111010;
+            --darker: #0a0909;
+            --paper: #e8dfc8;
+            --paper-dark: #c9b99a;
+            --pink: #d4879c;
+            --pink-muted: #a0607a;
+            --text-light: #e8dfc8;
+            --text-muted: #8a7a6a;
+            --tape: rgba(180, 150, 100, 0.6);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--dark);
+            color: var(--text-light);
+            font-family: 'Courier Prime', monospace;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* Grain Overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ─── NAV ─── */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            mix-blend-mode: normal;
+        }
+        .nav-logo {
+            font-family: 'Caveat', cursive;
+            font-size: 1.8rem;
+            color: var(--paper);
+            letter-spacing: 2px;
+        }
+
+        /* ─── HERO ─── */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 40px 60px;
+            position: relative;
+        }
+
+        .hero-label {
+            font-family: 'Special Elite', cursive;
+            font-size: 0.65rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(3.5rem, 10vw, 7rem);
+            font-weight: 700;
+            color: var(--paper);
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .hero-heart {
+            color: var(--pink);
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .hero-sub {
+            font-family: 'Special Elite', cursive;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            max-width: 320px;
+            line-height: 1.8;
+            margin-top: 12px;
+        }
+
+        .scratch-line {
+            width: 60px;
+            height: 1px;
+            background: var(--text-muted);
+            margin: 32px auto;
+            opacity: 0.4;
+        }
+
+        /* ─── TIMER ─── */
+        #timer {
+            padding: 80px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .timer-number {
+            font-family: 'Special Elite', cursive;
+            font-size: clamp(5rem, 15vw, 10rem);
+            color: var(--paper);
+            line-height: 1;
+            opacity: 0.9;
+        }
+
+        .timer-label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        /* ─── COLLAGE SECTION ─── */
+        #collage {
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .collage-label {
+            font-family: 'Special Elite', cursive;
+            font-size: 0.65rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 50px;
+        }
+
+        .collage-wrapper {
+            position: relative;
+            max-width: 860px;
+            width: 100%;
+        }
+
+        /* tape strips above and below */
+        .tape-top, .tape-bottom {
+            position: absolute;
+            width: 80px;
+            height: 22px;
+            background: var(--tape);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            border-radius: 2px;
+        }
+        .tape-top { top: -11px; transform: translateX(-50%) rotate(-1deg); }
+        .tape-bottom { bottom: -11px; transform: translateX(-50%) rotate(1deg); }
+
+        .collage-img {
+            width: 100%;
+            display: block;
+            border-radius: 2px;
+            filter: contrast(1.05) brightness(0.95);
+            box-shadow: 0 20px 80px rgba(0,0,0,0.8), 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        /* corner scribbles around collage */
+        .corner-note {
+            position: absolute;
+            font-family: 'Caveat', cursive;
+            font-size: 1rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+        .corner-note.tl { top: 20px; left: -60px; transform: rotate(-12deg); }
+        .corner-note.tr { top: 20px; right: -60px; transform: rotate(10deg); }
+        .corner-note.bl { bottom: 20px; left: -60px; transform: rotate(8deg); }
+        .corner-note.br { bottom: 20px; right: -60px; transform: rotate(-9deg); }
+
+        /* FLOATING HEARTS & FLOWERS */
+        .deco-item {
+            position: absolute;
+            font-size: 1.2rem;
+            color: var(--pink);
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 5;
+            animation: gentleFloat 3s ease-in-out infinite alternate;
+        }
+
+        .deco-1 { top: -20px; left: 15%; animation-delay: 0s; font-size: 1.4rem; }
+        .deco-2 { top: 30%; right: -25px; animation-delay: 1s; font-size: 1.1rem; color: var(--paper); }
+        .deco-3 { bottom: 15%; left: -20px; animation-delay: 2s; font-size: 1.5rem; }
+        .deco-4 { bottom: -25px; right: 20%; animation-delay: 0.5s; font-size: 1.3rem; }
+        .deco-5 { top: 15%; left: -25px; animation-delay: 1.5s; color: var(--paper); }
+        .deco-6 { top: -15px; right: 10%; animation-delay: 2.5s; font-size: 1.2rem; }
+
+        @keyframes gentleFloat {
+            0% { transform: translateY(0) rotate(-5deg); }
+            100% { transform: translateY(-12px) rotate(10deg); }
+        }
+
+        /* ─── TIMELINE / JOURNEY ─── */
+        #journey {
+            padding: 100px 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-family: 'Special Elite', cursive;
+            font-size: 0.65rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 60px;
+            display: block;
+            text-align: center;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0.08) 80%, transparent);
+        }
+
+        .tl-item {
+            position: relative;
+            padding-bottom: 50px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .tl-item.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        .tl-dot {
+            position: absolute;
+            left: -34px;
+            top: 6px;
+            width: 8px; height: 8px;
+            background: var(--pink);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--pink-muted);
+        }
+
+        .tl-date {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .tl-title {
+            font-family: 'Caveat', cursive;
+            font-size: 1.6rem;
+            color: var(--paper);
+            margin-bottom: 8px;
+        }
+
+        .tl-body {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        /* ─── NOTE / LETTER ─── */
+        #note {
+            padding: 100px 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .letter {
+            background: var(--paper);
+            color: #2a1f1a;
+            max-width: 500px;
+            width: 100%;
+            padding: 60px 50px;
+            position: relative;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.4), 0 20px 60px rgba(0,0,0,0.6);
+            transform: rotate(-0.8deg);
+        }
+
+        .letter-tape {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%) rotate(1deg);
+            width: 70px;
+            height: 22px;
+            background: var(--tape);
+            border-radius: 2px;
+        }
+
+        .letter-date {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            color: #7a6a5a;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .letter-body {
+            font-family: 'Caveat', cursive;
+            font-size: 1.3rem;
+            color: #2a1f1a;
+            line-height: 1.9;
+            margin-bottom: 30px;
+        }
+
+        .letter-sig {
+            font-family: 'Caveat', cursive;
+            font-size: 1.8rem;
+            color: #2a1f1a;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .letter-lines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                transparent,
+                transparent 31px,
+                rgba(0,0,0,0.06) 31px,
+                rgba(0,0,0,0.06) 32px
+            );
+            top: 90px;
+            pointer-events: none;
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            padding: 60px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .footer-text {
+            font-family: 'Special Elite', cursive;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* ─── FLOATING SPECKS ─── */
+        .speck {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: drift linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes drift {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-10vh) translateX(20px); opacity: 0; }
+        }
+
+        /* ─── REVEAL ─── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* ─── MOBILE ACCESSIBILITY REFINEMENTS ─── */
+        @media (max-width: 600px) {
+            nav { padding: 15px 20px; }
+            .nav-logo { font-size: 1.5rem; }
+            
+            #hero, #timer, #journey, #note, footer { padding-left: 20px; padding-right: 20px; }
+            
+            .hero-title { font-size: 4rem; }
+            .timer-number { font-size: 4.5rem; }
+            
+            /* Hide corner text to avoid overlap on small screens */
+            .corner-note { display: none; }
+            
+            /* Pull decorations inward so they don't get cut off on phone screens */
+            .deco-item { font-size: 1rem; }
+            .deco-1 { left: 5%; top: -10px; }
+            .deco-2 { right: 5%; top: 25%; }
+            .deco-3 { left: 2%; bottom: 5%; }
+            .deco-4 { right: 5%; bottom: -10px; }
+            .deco-5 { left: 2%; top: 15%; }
+            .deco-6 { right: 5%; top: -5px; }
+
+            .tl-title { font-size: 1.4rem; }
+            
+            /* Stop letter from rotating off-screen and tighten padding */
+            .letter { 
+                padding: 40px 25px; 
+                transform: rotate(0deg); 
+            }
+            .letter-body { font-size: 1.15rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo">V & M</div>
+    </nav>
+
+    <section id="hero">
+        <p class="hero-label">— happy first anniversary —</p>
+        <h1 class="hero-title">Vibhu <span class="hero-heart">♥</span> Meetu</h1>
+        <p class="hero-sub">one year. every distance, every call, every stupid fight. every single thing.</p>
+        <div class="scratch-line"></div>
+        <p style="font-family:'Courier Prime',monospace; font-size:0.7rem; color:var(--text-muted); letter-spacing:2px; font-style:italic;">you're my world, meet.</p>
+    </section>
+
+    <section id="timer" class="reveal">
+        <p class="timer-label">days together</p>
+        <div class="timer-number" id="days">365</div>
+        <p class="timer-label" style="margin-top:12px; font-size:0.6rem;">and counting &nbsp;/&nbsp; never stopping</p>
+    </section>
+
+    <section id="collage">
+        <span class="collage-label reveal">— moments —</span>
+        <div class="collage-wrapper reveal">
+            <div class="tape-top"></div>
+            <img src="collage.jpg" alt="Our collage" class="collage-img">
+            <div class="tape-bottom"></div>
+            
+            <span class="corner-note tl">♥</span>
+            <span class="corner-note tr">us.</span>
+            <span class="corner-note bl">forever</span>
+            <span class="corner-note br">2024</span>
+
+            <span class="deco-item deco-1">✿</span>
+            <span class="deco-item deco-2">♥</span>
+            <span class="deco-item deco-3">❀</span>
+            <span class="deco-item deco-4">♥</span>
+            <span class="deco-item deco-5">✿</span>
+            <span class="deco-item deco-6">❀</span>
+        </div>
+    </section>
+
+    <section id="journey">
+        <span class="section-label reveal">our story</span>
+        <div class="timeline">
+            <div class="tl-item">
+                <div class="tl-dot"></div>
+                <p class="tl-date">the beginning</p>
+                <h3 class="tl-title">The First Message</h3>
+                <p class="tl-body">two people, one screen, no idea what was about to happen.</p>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot"></div>
+                <p class="tl-date">not long after</p>
+                <h3 class="tl-title">The First Call</h3>
+                <p class="tl-body">hearing your voice for the first time — that was it.</p>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot"></div>
+                <p class="tl-date">the moment</p>
+                <h3 class="tl-title">"I Love You"</h3>
+                <p class="tl-body">three words. everything changed in an instant.</p>
+            </div>
+            <div class="tl-item">
+                <div class="tl-dot"></div>
+                <p class="tl-date">today</p>
+                <h3 class="tl-title">One Year ♥</h3>
+                <p class="tl-body">365 days of being each other's home. distance means nothing when you're everything.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="note">
+        <div class="letter reveal">
+            <div class="letter-tape"></div>
+            <div class="letter-lines"></div>
+            <p class="letter-date">— to meetu, with everything —</p>
+            <p class="letter-body">
+                You're my world, meet. Thank you for supporting me at my lowest — and my highest, and every ordinary moment in between. Distance is just a number. What we have is not. Here's to the next year, and every year after that.
+            </p>
+            <p class="letter-sig">— Vibhu ♥</p>
+        </div>
+    </section>
+
+    <footer>
+        <p class="footer-text">made with love &nbsp;·&nbsp; vibhu for meetu &nbsp;·&nbsp; happy 1st anniversary</p>
+    </footer>
+
+    <script>
+        // Timer
+        const start = new Date();
+        start.setFullYear(start.getFullYear() - 1); // <--- Edit your exact date here if needed!
+        function tick() {
+            const diff = Date.now() - start;
+            document.getElementById('days').textContent = Math.floor(diff / 86400000);
+        }
+        tick();
+        setInterval(tick, 60000);
+
+        // Scroll reveal
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) e.target.classList.add('visible');
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.reveal, .tl-item').forEach(el => observer.observe(el));
+
+        // Floating dust specks
+        const colors = ['#d4879c', '#e8dfc8', '#8a7a6a'];
+        function createSpeck() {
+            const s = document.createElement('div');
+            s.className = 'speck';
+            const size = Math.random() * 3 + 1;
+            s.style.cssText = `
+                width:${size}px; height:${size}px;
+                left:${Math.random()*100}vw;
+                background:${colors[Math.floor(Math.random()*colors.length)]};
+                animation-duration:${Math.random()*20+15}s;
+                animation-delay:${Math.random()*5}s;
+                z-index:1;
+            `;
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 25000);
+        }
+        setInterval(createSpeck, 1200);
+    </script>
+</body>
+</html>
